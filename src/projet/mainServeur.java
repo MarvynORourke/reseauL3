@@ -7,7 +7,6 @@ public class mainServeur {
 	public static void main(String[] args) throws IOException {
 		Serveur mainServeur = new Serveur();
 		mainServeur.connect();
-		mainServeur.authentification();
 	}
 
 }

@@ -1,6 +1,7 @@
 package projet;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,13 +103,17 @@ public class Serveur {
 	public void authentification(){
 		try{
 			//On récupère ce que nous envoie le client
-			String message = getMessage(clientSocket);
+			InputStream inputClient = clientSocket.getInputStream();
+			int numEtud = inputClient.read();
 			//On vérifie que le numéro envoyé par le client existe (authentification)
-			if (numEtudiants.contains(message)){
+			if (numEtudiants.contains(numEtud)){
 				out = new PrintWriter(clientSocket.getOutputStream(), true);
 				out.write("Vous êtes authentifié.");
 				out.print("Vous êtes authentifié.");
 				authentifie = true;
+				send(clientSocket.getOutputStream(),new FileInputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testEntrée.txt"));
+			}else{
+				System.out.println("Vous n'êtes pas authentifié !");
 			}
 		}catch(Exception e){
 			System.out.println(e.getMessage());
@@ -121,38 +126,65 @@ public class Serveur {
 	 */
 	public void getEDTServeur() throws IOException{
 		try{
-		//Si le client est authentifié, on envoie l'emploi du temps via la fonction send()
-		if(authentifie == true){
-			send(clientSocket.getOutputStream(),new FileInputStream("./test.txt"));
-		}else{//Sinon on prévient le client qu'il n'est pas authentifié
-			out.flush();
-			out.print("Vous n'êtes pas authentifié");
+			//Si le client est authentifié, on envoie l'emploi du temps via la fonction send()
+			if(authentifie == true){
+				send(clientSocket.getOutputStream(),new FileInputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testEntrée.txt"));
+			}else{//Sinon on prévient le client qu'il n'est pas authentifié
+				out.flush();
+				out.print("Vous n'êtes pas authentifié");
+			}
+		}catch(IOException e){
+			System.out.println("Quelque chose a mal tourné lol");     
+			System.exit(-1);
 		}
-	}catch(IOException e){
-		System.out.println("Quelque chose a mal tourné lol");     
-		System.exit(-1);
 	}
-	}
-	
+
 	/** La méthode send() permet d'envoyer une donnée d'un InputStream vers un OutputStream
 	 * @param OutputStream outClient là où se trouve la donnée a obtenir
 	 * @param InputStream inClient là où on doit écrire la donnée
 	 * @throws IOException si l'envoie n'a pas abouti
 	 */
-	private void send(OutputStream outClient, InputStream inClient) throws IOException{
+	private void send(OutputStream outClient, FileInputStream inFile) throws IOException{
 		try{
-			//On crée un tableau de bytes
-			byte[] buf = new byte[1024];
-			int n;
-			//Tant que InputStream est plein, on transfère les données de inClient vers le OutputStream, outClient
-			while((n=inClient.read(buf))!=-1){
-				outClient.write(buf,0,n);
+			System.out.println("Début coté serveur !");
+			InputStream inFileStream = inFile;
+			byte[] buf = new byte[8192];
+			int c;
+
+			while ((c = inFileStream.read(buf, 0, buf.length)) > 0) {
+				System.out.println(c);
+				outClient.write(buf, 0, c);
+				System.out.println(c);
 			}
+			System.out.println(c);
+
+			outClient.flush();
+			inFileStream.close();
+			System.out.println("Fin coté serveur !");
+			
+			
+//			File f = new File("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testEntrée.txt");
+//
+//			byte[] buf = new byte[8192];
+//
+//			InputStream is = new FileInputStream(f);
+//
+//			int c = 0;
+//
+//			while ((c = is.read(buf, 0, buf.length)) > 0) {
+//				out.write(buf, 0, c);
+//			}
+//
+//			out.flush();
+//			is.close();
+			
+			
+			
+			
 		}catch(IOException e){
 			System.out.println("Could not send file on port 4444");
 			System.exit(-1) ;
 		}
-
 	}
 
 	/** 
@@ -172,6 +204,7 @@ public class Serveur {
 		int bytesRead = in.read(bytes);
 		//On construit la string à renvoyer
 		sb.append(new String(bytes,0,bytesRead,"UTF-8"));
+		System.out.println("Civoi le num etud mais dans getMessage(): "+sb.toString());
 		return sb.toString();
 	}
 
