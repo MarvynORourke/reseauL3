@@ -11,6 +11,21 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+
+/*
+//Un exemple de javadoc
+/** Explication de la méthode/constructeur/watheveryouwantlol
+ * @param  pour donner l'information sur UN SEUL paramètre
+ * @return ce que la fonction renvoie (si aucun renvoie, enlever return)
+ * @throws UN SEUL type d'exception renvoyer (à faire pour chaque type)
+ */
+
+
+/*** La classe Serveur est la classe qui permet de créer le serveur, de s'y connecter, etc
+ * 
+ * @author Romain
+ *
+ */
 public class Serveur {
 
 	//La liste des numéros d'étudiants
@@ -26,6 +41,10 @@ public class Serveur {
 	//Un booléen pour savoir si le client est authentifié
 	boolean authentifie = false;
 
+	/*** Le constructeur Serveur().
+	 * Il crée la ServerSocket sur le port 4444.
+	 *
+	 */
 	public Serveur(){
 		try {
 			//On initialise le ServerSocket, sur le port 4444 afin d'écouter toutes les requêtes émises sur ce port
@@ -36,6 +55,11 @@ public class Serveur {
 		}
 	}
 
+	/** La méthode connect() permet à un client de se connecter au serveur.
+	 *  Elle oblige aussi le client à s'authentifier via un numéro.
+	 * @return Un booléen qui indique si la connexion s'est bien déroulée
+	 * @throws IOException si la méthode accept() a échouée
+	 */
 	public boolean connect() throws IOException{
 		try{
 			//On lance la fonction qui met la ServerSocket en attente d'une requête
@@ -51,6 +75,11 @@ public class Serveur {
 		}
 	}
 
+	/** La méthode close() permet de fermer le PrintWriter et le BufferedReader, utiles pour communiquer
+	 * avec le client. Elle ferme aussi les sockets du client (Socket) et du serveur (ServerSocket)
+	 * @return Un booléen qui indique si toutes les fermetures ont réussies
+	 * @throws IOException si une fermeture a échouée
+	 */
 	public boolean close() throws IOException{
 		try{
 			//On ferme tout
@@ -67,6 +96,9 @@ public class Serveur {
 		}
 	}
 
+	/** La méthode authentification() est utilisé pour authentifier un clients
+	 * @throws Exception si quelque chose a échouée
+	 */
 	public void authentification(){
 		try{
 			//On récupère ce que nous envoie le client
@@ -83,7 +115,12 @@ public class Serveur {
 		}
 	}
 
+	/** La méthode getEDTServeur() permet d'envoyer au client l'emploi du temps via la méthode send()
+	 *  si le client est authentifié
+	 * @throws IOException quelque chose a échouée
+	 */
 	public void getEDTServeur() throws IOException{
+		try{
 		//Si le client est authentifié, on envoie l'emploi du temps via la fonction send()
 		if(authentifie == true){
 			send(clientSocket.getOutputStream(),new FileInputStream("./test.txt"));
@@ -91,8 +128,17 @@ public class Serveur {
 			out.flush();
 			out.print("Vous n'êtes pas authentifié");
 		}
+	}catch(IOException e){
+		System.out.println("Quelque chose a mal tourné lol");     
+		System.exit(-1);
 	}
-
+	}
+	
+	/** La méthode send() permet d'envoyer une donnée d'un InputStream vers un OutputStream
+	 * @param OutputStream outClient là où se trouve la donnée a obtenir
+	 * @param InputStream inClient là où on doit écrire la donnée
+	 * @throws IOException si l'envoie n'a pas abouti
+	 */
 	private void send(OutputStream outClient, InputStream inClient) throws IOException{
 		try{
 			//On crée un tableau de bytes
@@ -109,6 +155,12 @@ public class Serveur {
 
 	}
 
+	/** 
+	 * 
+	 * @param socket
+	 * @return
+	 * @throws IOException
+	 */
 	private String getMessage(Socket socket) throws IOException{
 		//On ouvre le canal d'entrée
 		BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
