@@ -60,10 +60,12 @@ public class Client {
 		try{
 			FileOutputStream outFile = new FileOutputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testSortie.txt");
 			
-			int amount = 1;
+			int amount = 888;
 			System.out.println("Coté client !");
+			System.out.println(input.ready());
+			
 			while((amount != -1) && (input.ready() == true)){
-				System.out.println("On écris...");
+				System.out.println("On écris dans le fichier");
 				System.out.println(amount);
 				amount = input.read();
 				outFile.write(amount);

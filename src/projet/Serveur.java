@@ -43,15 +43,15 @@ public class Serveur {
 	boolean authentifie = false;
 
 	/*** Le constructeur Serveur().
-	 * Il crée la ServerSocket sur le port 4444.
+	 * Il crée la ServerSocket sur le port 7777.
 	 *
 	 */
 	public Serveur(){
 		try {
-			//On initialise le ServerSocket, sur le port 4444 afin d'écouter toutes les requêtes émises sur ce port
-			serverSocket = new ServerSocket(4444);
+			//On initialise le ServerSocket, sur le port 7777 afin d'écouter toutes les requêtes émises sur ce port
+			serverSocket = new ServerSocket(7777);
 		} catch (IOException ex) {
-			System.out.println("Could not listen on port 4444");
+			System.out.println("Could not listen on port 7777");
 			System.exit(-1) ;
 		}
 	}
@@ -70,7 +70,7 @@ public class Serveur {
 			//On return un booléen pour savoir si l'authentification a fonctionnée
 			return true;
 		}catch(IOException e){
-			System.out.println("Accept failed on port 4444");     
+			System.out.println("Accept failed on port 7777");     
 			System.exit(-1) ;
 			return false;
 		}
@@ -91,7 +91,7 @@ public class Serveur {
 			//Booléen pour savoir si close() a marchée
 			return true;
 		}catch(IOException e){
-			System.out.println("Close failed on port 4444");     
+			System.out.println("Close failed on port 7777");     
 			System.exit(-1) ;
 			return false;
 		}
@@ -148,16 +148,19 @@ public class Serveur {
 		try{
 			System.out.println("Début coté serveur !");
 			InputStream inFileStream = inFile;
+			
 			byte[] buf = new byte[8192];
 			int c;
 
 			while ((c = inFileStream.read(buf, 0, buf.length)) > 0) {
+				System.out.println("On écris vers le client");
+				System.out.println("buf : ");
+				System.out.println(buf);
+				System.out.println("c : ");
 				System.out.println(c);
 				outClient.write(buf, 0, c);
-				System.out.println(c);
 			}
 			System.out.println(c);
-
 			outClient.flush();
 			inFileStream.close();
 			System.out.println("Fin coté serveur !");
