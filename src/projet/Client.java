@@ -33,20 +33,8 @@ public class Client {
 			input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			out.write(numeroEtud);
 			out.flush();
-			//		    String ligne = input.readLine();
-			//		    while(!ligne.equals("end")){
-			//		    	if(ligne.equals("true")){
-			//		    		connection = true;
-			//		    	}
-			//		    }
-			if(true){
-				getEDT();
-			}else{
-				System.out.println("Vous ne pouvez pas vous identifier avec le numéro etudiant");
-			}
 
 		}catch (UnknownHostException e) {
-
 			System.out.println("Destination unknow");
 			System.exit(-1);
 		}catch (IOException e) {
@@ -61,8 +49,13 @@ public class Client {
 			FileOutputStream outFile = new FileOutputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testSortie.txt");
 			
 			int amount = 888;
-			System.out.println("Coté client !");
-			System.out.println(input.ready());
+			while(!input.ready()){
+				amount ++;
+				if (amount>10000){
+					amount = 1;
+				}
+			}
+			System.out.println("Coté client !");			
 			
 			while((amount != -1) && (input.ready() == true)){
 				System.out.println("On écris dans le fichier");
@@ -73,31 +66,7 @@ public class Client {
 			}
 			System.out.println("Fin coté client !");
 			
-			
-//			int c = 1;
-//			while((c != -1) && (in.ready() == true)){
-//				if (in.ready() == true){
-//					c = in.read();
-//				}
-//				outFile.write(c);					
-//			}
-			
-			
-			
 			outFile.close();
-
-
-
-			//		       int c = 1;
-			//				while((c != -1) && (in.ready() == true)){
-			//					if (in.ready() == true){
-			//						c = in.read();
-			//					}
-			//					outFile.write(c);					
-			//				}
-
-
-
 
 		}catch(IOException e){
 			e.printStackTrace();

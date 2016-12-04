@@ -8,5 +8,4 @@ public class mainServeur {
 		Serveur mainServeur = new Serveur();
 		mainServeur.connect();
 	}
-
 }

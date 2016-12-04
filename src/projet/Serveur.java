@@ -165,25 +165,6 @@ public class Serveur {
 			inFileStream.close();
 			System.out.println("Fin coté serveur !");
 			
-			
-//			File f = new File("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testEntrée.txt");
-//
-//			byte[] buf = new byte[8192];
-//
-//			InputStream is = new FileInputStream(f);
-//
-//			int c = 0;
-//
-//			while ((c = is.read(buf, 0, buf.length)) > 0) {
-//				out.write(buf, 0, c);
-//			}
-//
-//			out.flush();
-//			is.close();
-			
-			
-			
-			
 		}catch(IOException e){
 			System.out.println("Could not send file on port 4444");
 			System.exit(-1) ;
@@ -210,51 +191,4 @@ public class Serveur {
 		System.out.println("Civoi le num etud mais dans getMessage(): "+sb.toString());
 		return sb.toString();
 	}
-
-	/*
-	public void serveurSock(){
-		ServerSocket serverSocket = null;
-		try {
-			serverSocket = new ServerSocket(4444);
-		} catch (IOException ex) {
-			System.out.println("Could not listen on port 4444");
-			System.exit(-1) ;
-		}
-
-		Socket clientSocket = null;
-
-
-		try{
-			//Attente de la requête du client
-			clientSocket = serverSocket.accept();
-			//Ouverture du canal de sortie vers le client
-			out = new PrintWriter(clientSocket.getOutputStream(), true);
-			//Récupération du message envoyé par le client
-			String message = getMessage(clientSocket);
-			if (numEtudiants.contains(message)){
-				transfert(new FileInputStream("./test.txt"),clientSocket.getOutputStream(),true); //Envoie du fichier test.txt vers le client
-			}
-		}
-		catch(IOException e){
-			System.out.println("Accept failed on port 4444");     
-			System.out.println(-1);
-		}
-
-	}
-
-
-
-	public static void transfert(InputStream in, OutputStream out, boolean closeOnExit) throws IOException {
-		byte buf[] = new byte[1024];
-		int n;
-		while((n=in.read(buf))!=-1){
-			out.write(buf,0,n);
-		}
-
-		if (closeOnExit)
-		{
-			in.close();
-			out.close();
-		}
-	}*/
 }
