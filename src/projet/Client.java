@@ -12,19 +12,38 @@ import java.net.UnknownHostException;
 
 public class Client {
 
+	//La socket qui permet d'ouvrir la porte d'un serveur
 	private Socket socket;
+	//Permet d'écrire des trucs au server
 	private PrintWriter out;
+	//Permet de lire des trucsdu server
 	private BufferedReader input;
+	//L'adresse ip du Client
 	private String ip;
+	//Le port du Client
 	private int port;
+	//Le numéro étudiant du Client
 	private int numeroEtud;
-
+	//Fichier de destination
+	private final String destination = "C:\\Users\\Romain\\git\\reseauL3\\Ressources\\";
+	
+	/**
+	 * Construteur de la classe client qui initialise l'ip,le port et le numéro etudiant
+	 * @param ip
+	 * @param port
+	 * @param numeroEtud
+	 */
 	public Client(String ip, int port, int numeroEtud){
 		this.ip=ip;
 		this.port=port;
 		this.numeroEtud=numeroEtud;
 	}
 
+	/**
+	 * Permet au Client de se connecter au serveur grâce à son numéro étudiant.
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 */
 	public void getConnection() throws UnknownHostException, IOException{
 		try{
 			boolean connection = false;
@@ -43,10 +62,36 @@ public class Client {
 			System.exit(-1);
 		}
 	}
+	
+	/** La méthode close() permet de fermer le PrintWriter et le BufferedReader.
+	 * Elle ferme aussi la socket.
+	 * @return Un booléen qui indique si toutes les fermetures ont réussies
+	 * @throws IOException si une fermeture a échouée
+	 */
+	public boolean close() throws IOException{
+		try{
+			//On ferme tout
+			out.close();
+			input.close();
+			socket.close();
+			//Booléen pour savoir si close() a marchée
+			return true;
+		}catch(IOException e){
+			System.out.println("Close failed on port 4444");     
+			System.exit(-1) ;
+			return false;
+		}
+	}
 
+	/**
+	 * Permet d'enregister l'emploi du temps dans un fichier/
+	 * @throws IOException
+	 */
 	public void getEDT() throws IOException{
 		try{
-			FileOutputStream outFile = new FileOutputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testSortie.txt");
+			File fichier  = new File(destination+"EDT.txt");
+			fichier.createNewFile();
+			FileOutputStream outFile = new FileOutputStream(destination+"EDT.txt");
 			
 			int amount = 888;
 			while(!input.ready()){
@@ -67,6 +112,7 @@ public class Client {
 			System.out.println("Fin coté client !");
 			
 			outFile.close();
+			this.close();
 
 		}catch(IOException e){
 			e.printStackTrace();
