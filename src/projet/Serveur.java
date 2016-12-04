@@ -1,7 +1,5 @@
 package projet;
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,15 +41,15 @@ public class Serveur {
 	boolean authentifie = false;
 
 	/*** Le constructeur Serveur().
-	 * Il crée la ServerSocket sur le port 7777.
-	 *
+	 * Il crée la ServerSocket sur le port 4444.
 	 */
 	public Serveur(){
 		try {
-			//On initialise le ServerSocket, sur le port 7777 afin d'écouter toutes les requêtes émises sur ce port
-			serverSocket = new ServerSocket(7777);
+			//On initialise le ServerSocket, sur le port 4444 afin d'écouter toutes les requêtes émises sur ce port
+			//On utilise ce numéro de port car entre
+			serverSocket = new ServerSocket(4444);
 		} catch (IOException ex) {
-			System.out.println("Could not listen on port 7777");
+			System.out.println("Could not listen on port 4444");
 			System.exit(-1) ;
 		}
 	}
@@ -70,7 +68,7 @@ public class Serveur {
 			//On return un booléen pour savoir si l'authentification a fonctionnée
 			return true;
 		}catch(IOException e){
-			System.out.println("Accept failed on port 7777");     
+			System.out.println("Accept failed on port 4444");     
 			System.exit(-1) ;
 			return false;
 		}
@@ -91,7 +89,7 @@ public class Serveur {
 			//Booléen pour savoir si close() a marchée
 			return true;
 		}catch(IOException e){
-			System.out.println("Close failed on port 7777");     
+			System.out.println("Close failed on port 4444");     
 			System.exit(-1) ;
 			return false;
 		}
@@ -120,10 +118,10 @@ public class Serveur {
 		}
 	}
 
-	/** La méthode getEDTServeur() permet d'envoyer au client l'emploi du temps via la méthode send()
+	/*/** La méthode getEDTServeur() permet d'envoyer au client l'emploi du temps via la méthode send()
 	 *  si le client est authentifié
 	 * @throws IOException quelque chose a échouée
-	 */
+	 *
 	public void getEDTServeur() throws IOException{
 		try{
 			//Si le client est authentifié, on envoie l'emploi du temps via la fonction send()
@@ -137,7 +135,7 @@ public class Serveur {
 			System.out.println("Quelque chose a mal tourné lol");     
 			System.exit(-1);
 		}
-	}
+	}*/
 
 	/** La méthode send() permet d'envoyer une donnée d'un InputStream vers un OutputStream
 	 * @param OutputStream outClient là où se trouve la donnée a obtenir
@@ -169,26 +167,5 @@ public class Serveur {
 			System.out.println("Could not send file on port 4444");
 			System.exit(-1) ;
 		}
-	}
-
-	/** 
-	 * 
-	 * @param socket
-	 * @return
-	 * @throws IOException
-	 */
-	private String getMessage(Socket socket) throws IOException{
-		//On ouvre le canal d'entrée
-		BufferedInputStream in = new BufferedInputStream(socket.getInputStream());
-		//On crée un StringBuilder
-		StringBuilder sb = new StringBuilder(100);
-		//On crée un tableau de bytes
-		byte[] bytes = new byte[1024<<8];
-		//On lit ce qu'il y a sur l'InputStream de la socket entrée en paramètre
-		int bytesRead = in.read(bytes);
-		//On construit la string à renvoyer
-		sb.append(new String(bytes,0,bytesRead,"UTF-8"));
-		System.out.println("Civoi le num etud mais dans getMessage(): "+sb.toString());
-		return sb.toString();
 	}
 }
