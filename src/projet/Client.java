@@ -130,7 +130,7 @@ public class Client {
 	}
 
 	/**
-	 * Permet d'enregister l'emploi du temps dans un fichier et de dire si la signature est vérifié. 
+	 * Permet d'enregister l'emploi du temps dans un fichier 
 	 * @throws IOException
 	 * @throws SignatureException 
 	 * @throws NoSuchAlgorithmException 
@@ -155,9 +155,7 @@ public class Client {
 				System.out.println("On écris dans le fichier");
 				amount = input.read();
 				outFile.write(amount);
-			}
-
-			
+			}		
 			
 			System.out.println("Fin coté client !");
 			outFile.close();
@@ -169,6 +167,14 @@ public class Client {
 			System.exit(-1);
 		}
 	}
+	/**
+	 * Permet de recuperer l'EDT et de vérifier la signature.
+	 * @throws IOException
+	 * @throws InvalidKeyException
+	 * @throws NoSuchAlgorithmException
+	 * @throws SignatureException
+	 * @throws InvalidKeySpecException
+	 */
 	public void getEDTV2() throws IOException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException{
 		try{
 			File fichier  = new File(destination+"EDT.txt");
