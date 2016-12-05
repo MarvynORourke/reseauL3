@@ -18,41 +18,43 @@ import java.security.*;
 
 /*
  //Un exemple de javadoc
- /** Explication de la mï¿½thode/constructeur/watheveryouwantlol
- * @param  pour donner l'information sur UN SEUL paramï¿½tre
+ /** Explication de la méthode/constructeur/watheveryouwantlol
+ * @param  pour donner l'information sur UN SEUL paramétre
  * @return ce que la fonction renvoie (si aucun renvoie, enlever return)
- * @throws UN SEUL type d'exception renvoyer (ï¿½ faire pour chaque type)
+ * @throws UN SEUL type d'exception renvoyer (é faire pour chaque type)
  */
 
 /**
- * * La classe Serveur est la classe qui permet de crï¿½er le serveur, de s'y
+ * * La classe Serveur est la classe qui permet de créer le serveur, de s'y
  * connecter, etc
  *
  * @author Romain
  */
 public class Serveur {
     ArrayList<Integer> numEtudiants;
-    //La socket du serveur (pour attendre une requï¿½te)
+    //La socket du serveur (pour attendre une requéte)
     ServerSocket serverSocket = null;
-    //La socket du client (pour hï¿½berger une requï¿½te avec un client)
+    //La socket du client (pour héberger une requéte avec un client)
     Socket clientSocket = null;
     //Le PrinWriter, pour envoyer des trucs au client
     PrintWriter out;
-    //Le BufferedReader, pour lire des trucs envoyï¿½s par le client
+    //Le BufferedReader, pour lire des trucs envoyés par le client
     BufferedReader in;
-    //Un boolï¿½en pour savoir si le client est authentifiï¿½
+    //Un booléen pour savoir si le client est authentifié
     boolean authentifie = false;
-    //La paire de clï¿½ publique/privï¿½
+    //La paire de clé publique/privé
     private KeyPair keyPair = null;
-
+    //La destination des fichiers
+    private String destination;
+    
     /**
-     * * Le constructeur Serveur(). Il crï¿½e la ServerSocket sur le port 4444.
+     * * Le constructeur Serveur(). Il crée la ServerSocket sur le port 4444.
      */
     public Serveur() {
         this.numEtudiants = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9));
         try {
-            //On initialise le ServerSocket, sur le port 4444 afin d'ï¿½couter toutes les requï¿½tes ï¿½mises sur ce port
-            //On utilise ce numï¿½ro de port car entre
+            //On initialise le ServerSocket, sur le port 4444 afin d'écouter toutes les requétes émises sur ce port
+            //On utilise ce numéro de port car entre
             serverSocket = new ServerSocket(4444);
         } catch (IOException ex) {
             System.out.println("Could not listen on port 4444");
@@ -61,17 +63,18 @@ public class Serveur {
     }
 
     /**
-     * La mï¿½thode connect() permet ï¿½ un client de se connecter au serveur. Elle
-     * oblige aussi le client ï¿½ s'authentifier via un numï¿½ro.
+     * La méthode connect() permet é un client de se connecter au serveur. Elle
+     * oblige aussi le client é s'authentifier via un numéro.
      *
-     * @param s, la chaÃ®ne de caractÃ¨re qui indique la version du serveur Ã 
+     * @param s, la chaà®ne de caractà¨re qui indique la version du serveur à 
      * utiliser
-     * @return boolean, indiquant si la connection s'est bien dÃ©roulÃ©e
+     * @return boolean, indiquant si la connection s'est bien déroulée
      * @throws java.io.IOException
      */
-    public boolean connect(int n) throws IOException {
+    public boolean connect(int n, String path) throws IOException {
         try {
-            //On lance la fonction qui met la ServerSocket en attente d'une requï¿½te
+        	this.destination = path;
+            //On lance la fonction qui met la ServerSocket en attente d'une requéte
             clientSocket = serverSocket.accept();
             switch (n) {
                 case 1:
@@ -82,7 +85,7 @@ public class Serveur {
                     break;
             }
             boolean closed = close();
-            //On return un boolï¿½en pour savoir si l'authentification a fonctionnï¿½e
+            //On return un booléen pour savoir si l'authentification a fonctionnée
             return closed;
         } catch (IOException e) {
             System.out.println("Accept failed on port 4444");
@@ -92,12 +95,12 @@ public class Serveur {
     }
 
     /**
-     * La mï¿½thode close() permet de fermer le PrintWriter et le BufferedReader,
+     * La méthode close() permet de fermer le PrintWriter et le BufferedReader,
      * utiles pour communiquer avec le client. Elle ferme aussi les sockets du
      * client (Socket) et du serveur (ServerSocket)
      *
-     * @return Un boolï¿½en qui indique si toutes les fermetures ont rï¿½ussies
-     * @throws IOException si une fermeture a Ã©chouÃ©e
+     * @return Un booléen qui indique si toutes les fermetures ont réussies
+     * @throws IOException si une fermeture a échouée
      */
     public boolean close() throws IOException {
         try {
@@ -108,7 +111,7 @@ public class Serveur {
                 clientSocket.close();
             }
             serverSocket.close();
-            //Boolï¿½en pour savoir si close() a marchÃ©e
+            //Booléen pour savoir si close() a marchée
             return true;
         } catch (IOException e) {
             System.out.println("Close failed on port 4444");
@@ -120,24 +123,23 @@ public class Serveur {
     }
 
     /**
-     * La mÃ©thode authentification() est utilisÃ© pour authentifier un client et
-     * obtenir l'emploi du temps, non signÃ©
+     * La méthode authentification() est utilisé pour authentifier un client et
+     * obtenir l'emploi du temps, non signé
      *
      */
     public void authentification() {
         try {
-            //On rÃ©cupÃ¨re ce que nous envoie le client
+            //On récupà¨re ce que nous envoie le client
             InputStream inputClient = clientSocket.getInputStream();
             int numEtud = inputClient.read();
-            //On vÃ©rifie que le numÃ©ro envoyÃ© par le client existe (authentification)
+            //On vérifie que le numéro envoyé par le client existe (authentification)
             if (numEtudiants.contains(numEtud)) {
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
-                out.write("Vous Ãªtes authentifiÃ©.");
-                out.print("Vous Ãªtes authentifiÃ©.");
                 authentifie = true;
-                send(clientSocket.getOutputStream(), new FileInputStream("C:\\Temp\\testEntree.txt"));
+                send(clientSocket.getOutputStream(), new FileInputStream(destination + "testEntree.txt"));
             } else {
-                System.out.println("Vous n'Ãªtes pas authentifiÃ© !");
+            	System.out.println("Le client n'est pas authentifié !");
+                out.println(" Vous n'êtes pas authentifié !");
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -145,57 +147,56 @@ public class Serveur {
     }
     
     /**
-     * La mÃ©thode authentificationV2() est utilisÃ© pour authentifier un clients
-     * et obtenir l'emploi du temps, non signÃ© et signÃ©
+     * La méthode authentificationV2() est utilisé pour authentifier un clients
+     * et obtenir l'emploi du temps, non signé et signé
      *
      */
     public void authentificationV2() {
         try {
-            //On rÃ©cupÃ¨re ce que nous envoie le client
+            //On récupà¨re ce que nous envoie le client
             InputStream inputClient = clientSocket.getInputStream();
             int numEtud = inputClient.read();
-            //On vÃ©rifie que le numÃ©ro envoyÃ© par le client existe (authentification)
+            //On vérifie que le numéro envoyé par le client existe (authentification)
             if (numEtudiants.contains(numEtud)) {
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
-                out.write("Vous Ãªtes authentifiÃ©.");
-                out.print("Vous Ãªtes authentifiÃ©.");
                 authentifie = true;
-                send(clientSocket.getOutputStream(), new FileInputStream("C:\\Temp\\testEntree.txt"));
+                send(clientSocket.getOutputStream(), new FileInputStream(destination + "testEntree.txt"));
                 out.close();
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
-                signFile("C:\\Temp\\testEntree.txt","C:\\Temp\\signFile.txt");
+                signFile(destination + "testEntree.txt",destination + "signFile.txt");
             } else {
-                System.out.println("Vous n'Ãªtes pas authentifiÃ© !");
+                System.out.println("Le client n'est pas authentifié !");
+                out.println(" Vous n'êtes pas authentifié !");
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    /*/** La mï¿½thode getEDTServeur() permet d'envoyer au client l'emploi du temps via la mï¿½thode send()
-     *  si le client est authentifiï¿½
-     * @throws IOException quelque chose a ï¿½chouï¿½e
+    /*/** La méthode getEDTServeur() permet d'envoyer au client l'emploi du temps via la méthode send()
+     *  si le client est authentifié
+     * @throws IOException quelque chose a échouée
      *
      public void getEDTServeur() throws IOException{
      try{
-     //Si le client est authentifiï¿½, on envoie l'emploi du temps via la fonction send()
+     //Si le client est authentifié, on envoie l'emploi du temps via la fonction send()
      if(authentifie == true){
-     send(clientSocket.getOutputStream(),new FileInputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testEntrï¿½e.txt"));
-     }else{//Sinon on prï¿½vient le client qu'il n'est pas authentifiï¿½
+     send(clientSocket.getOutputStream(),new FileInputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testEntrée.txt"));
+     }else{//Sinon on prévient le client qu'il n'est pas authentifié
      out.flush();
-     out.print("Vous n'ï¿½tes pas authentifiï¿½");
+     out.print("Vous n'étes pas authentifié");
      }
      }catch(IOException e){
-     System.out.println("Quelque chose a mal tournï¿½ lol");     
+     System.out.println("Quelque chose a mal tourné lol");     
      System.exit(-1);
      }
      }*/
     /**
-     * La mÃ©thode send() permet d'envoyer une donnÃ©e d'un InputStream vers un
+     * La méthode send() permet d'envoyer une donnée d'un InputStream vers un
      * OutputStream
      *
-     * @param OutputStream outClient lÃ  oÃ¹ se trouve la donnÃ©e Ã  obtenir
-     * @param InputStream inClient lÃ  oÃ¹ on doit Ã©crire la donnÃ©e
+     * @param OutputStream outClient là  où se trouve la donnée à  obtenir
+     * @param InputStream inClient là  où on doit écrire la donnée
      * @throws IOException si l'envoie n'a pas abouti
      */
     private void send(OutputStream outClient, FileInputStream inFile) throws IOException {
@@ -217,7 +218,7 @@ public class Serveur {
     }
 
     /**
-     * La mÃ©thode generateKeys() permet de gÃ©nÃ©rer un couple de clÃ©s
+     * La méthode generateKeys() permet de générer un couple de clés
      *
      * @throws NoSuchAlgorithmException
      */
@@ -228,10 +229,10 @@ public class Serveur {
     }
 
     /**
-     * La mÃ©thode importPublicKey() permet d'importer une clÃ© publique dans un
+     * La méthode importPublicKey() permet d'importer une clé publique dans un
      * fichier
      *
-     * @param file, le fichier dans lequel la clÃ© publique vas Ãªtre importÃ©e
+     * @param file, le fichier dans lequel la clé publique vas à être importée
      * @throws IOException,NoSuchAlgorithmException
      * @throws java.security.NoSuchAlgorithmException
      */
@@ -257,9 +258,9 @@ public class Serveur {
     }
 
     /**
-     * La mÃ©thode signFile() permet de signer un fichier
+     * La méthode signFile() permet de signer un fichier
      *
-     * @param file, le fichier Ã  signer
+     * @param file, le fichier à  signer
      * @param sign, le fichier acceuillant la signature
      * @throws java.io.IOException
      * @throws java.security.NoSuchAlgorithmException
@@ -275,7 +276,7 @@ public class Serveur {
         }
 
         PublicKey publicKey = keyPair.getPublic();
-        importPublicKey("C:\\Temp\\publicKey.txt");
+        importPublicKey(destination + "publicKey.txt");
         PrivateKey privateKey = keyPair.getPrivate();
 
         Signature rsa = Signature.getInstance("SHA1withRSA");

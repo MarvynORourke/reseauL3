@@ -5,8 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.RandomAccessFile;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -15,14 +13,11 @@ import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-
-import javax.crypto.Cipher;
 
 public class Client {
 
@@ -39,7 +34,7 @@ public class Client {
 	//Le numéro étudiant du Client
 	private int numeroEtud;
 	//Fichier de destination
-	private final String destination = "C:\\Users\\Marv\\Desktop\\";
+	private final String destination;
 	//Clé privée permettant le decryptage 
 	private PublicKey publicKey;
 	/**
@@ -48,10 +43,11 @@ public class Client {
 	 * @param port
 	 * @param numeroEtud
 	 */
-	public Client(String ip, int port, int numeroEtud){
+	public Client(String ip, int port, int numeroEtud, String path){
 		this.ip=ip;
 		this.port=port;
 		this.numeroEtud=numeroEtud;
+		this.destination = path;
 	}
 
 	/**
@@ -105,7 +101,7 @@ public class Client {
 	 * @throws IOException
 	 */
 	public void setPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException{
-		Path path = Paths.get("C:\\Users\\Marv\\Desktop\\publicKey.txt");
+		Path path = Paths.get(destination + "\\publicKey.txt");
 		byte[] data = Files.readAllBytes(path);
 		KeyFactory f = KeyFactory.getInstance("RSA");
 		PublicKey publicKey = f.generatePublic(new X509EncodedKeySpec(data));
@@ -148,16 +144,12 @@ public class Client {
 				if (amount>10000){
 					amount = 1;
 				}
-			}
-			System.out.println("Coté client !");			
+			}			
 			
 			while((amount != -1) && (input.ready() == true)){
-				System.out.println("On écris dans le fichier");
 				amount = input.read();
 				outFile.write(amount);
-			}		
-			
-			System.out.println("Fin coté client !");
+			}
 			outFile.close();
 			this.close();
 
@@ -188,11 +180,9 @@ public class Client {
 				if (amount>10000){
 					amount = 1;
 				}
-			}
-			System.out.println("Coté client !");			
+			}			
 			
 			while((amount != -1) && (input.ready() == true)){
-				System.out.println("On écris dans le fichier");
 				amount = input.read();
 				outFile.write(amount);
 			}
@@ -204,7 +194,6 @@ public class Client {
 				}
 			}
 			while((amount != -1) && (input.ready() == true)){
-				System.out.println("On récupère la signature");
 				amount = input.read();
 				outFile2.write(amount);
 			}
@@ -212,7 +201,6 @@ public class Client {
 				this.setPublicKey();
 			}
 			
-			System.out.println("Fin coté client !");
 			Path path = Paths.get(destination+"EDT.txt");
 			byte[] file = Files.readAllBytes(path);
 			Path path2 = Paths.get(destination+"signature.txt");
