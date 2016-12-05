@@ -1,6 +1,8 @@
 package projet;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,6 +11,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.security.*;
 
 
 /*
@@ -39,6 +42,8 @@ public class Serveur {
 	BufferedReader in;
 	//Un booléen pour savoir si le client est authentifié
 	boolean authentifie = false;
+	//La paire de clé publique/privé
+	private KeyPair keyPair = null;
 
 	/*** Le constructeur Serveur().
 	 * Il crée la ServerSocket sur le port 4444.
@@ -110,6 +115,7 @@ public class Serveur {
 				out.print("Vous êtes authentifié.");
 				authentifie = true;
 				send(clientSocket.getOutputStream(),new FileInputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testEntrée.txt"));
+				close();
 			}else{
 				System.out.println("Vous n'êtes pas authentifié !");
 			}
@@ -146,7 +152,7 @@ public class Serveur {
 		try{
 			System.out.println("Début coté serveur !");
 			InputStream inFileStream = inFile;
-			
+
 			byte[] buf = new byte[8192];
 			int c;
 
@@ -162,10 +168,47 @@ public class Serveur {
 			outClient.flush();
 			inFileStream.close();
 			System.out.println("Fin coté serveur !");
-			
+
 		}catch(IOException e){
 			System.out.println("Could not send file on port 4444");
 			System.exit(-1) ;
+		}
+	}
+
+	/** La méthode generateKeys() permet de générer un couple de clés
+	 * @return keyPair, une paire de clé publique/privée
+	 * @throws NoSuchAlgorithmException 
+	 */
+
+	private KeyPair generateKeys() throws NoSuchAlgorithmException{
+		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+		keyPairGenerator.initialize(1024);
+		keyPair = keyPairGenerator.generateKeyPair();
+		return keyPair;
+	}
+
+	/** La méthode importPublicKey() permet d'importer une clé publique dans un fichier
+	 * @throws IOException 
+	 */
+
+	private void importPublicKey(String file) throws IOException{
+		File f = new File(file);
+		FileOutputStream outFile = null;
+		if(f.exists() && !f.isDirectory()) { 
+			outFile = new FileOutputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\publicKey.txt");
+		}else{
+			f.createNewFile();
+			outFile = new FileOutputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\publicKey.txt");
+		}
+
+		PublicKey publicKey = keyPair.getPublic();
+		String publicKeyString =  publicKey.toString();
+		outfile.
+		try{
+			outFile.write(publicKeyString);					
+			}
+		}catch(IOException e){
+			e.printStackTrace();
 		}
 	}
 }
