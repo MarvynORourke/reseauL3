@@ -3,7 +3,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -14,13 +13,11 @@ import java.nio.file.Paths;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import org.apache.commons.io.input.ReaderInputStream;
 
 public class Client {
 
@@ -76,7 +73,7 @@ public class Client {
 			System.exit(-1);
 		}
 	}
-
+	
 	/** La méthode close() permet de fermer le PrintWriter et le BufferedReader.
 	 * Elle ferme aussi la socket.
 	 * @return Un booléen qui indique si toutes les fermetures ont réussies
@@ -118,14 +115,13 @@ public class Client {
 	 * @throws InvalidKeyException
 	 * @throws NoSuchAlgorithmException
 	 * @throws SignatureException
-	 * @throws NoSuchProviderException 
 	 */
-	public boolean verifySign(byte[]data, byte[] s) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchProviderException{
-		Signature rsa = Signature.getInstance("SHA1withRSA","SunRsaSign");
+	public boolean verifySign(byte[]data, byte[] s) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException{
+		Signature rsa = Signature.getInstance("SHA1withRSA");
 		rsa.initVerify(publicKey);
 		rsa.update(data);
 		return rsa.verify(s);
-
+		
 	}
 
 	/**
@@ -140,7 +136,7 @@ public class Client {
 			File fichier  = new File(destination+"EDT.txt");
 			fichier.createNewFile();
 			FileOutputStream outFile = new FileOutputStream(destination+"EDT.txt");
-
+			
 			int amount = 888;
 			while(!input.ready()){
 				amount ++;
@@ -148,7 +144,7 @@ public class Client {
 					amount = 1;
 				}
 			}			
-
+			
 			while((amount != -1) && (input.ready() == true)){
 				amount = input.read();
 				outFile.write(amount);
@@ -169,15 +165,14 @@ public class Client {
 	 * @throws NoSuchAlgorithmException
 	 * @throws SignatureException
 	 * @throws InvalidKeySpecException
-	 * @throws NoSuchProviderException 
 	 */
-	public void getEDTV2() throws IOException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException, NoSuchProviderException{
+	public void getEDTV2() throws IOException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException{
 		try{
 			File fichier  = new File(destination+"EDT.txt");
 			fichier.createNewFile();
 			FileOutputStream outFile = new FileOutputStream(destination+"EDT.txt");
 			FileOutputStream outFile2 = new FileOutputStream(destination+"signature.txt");
-
+			
 			int amount = 888;
 			while(!input.ready()){
 				amount ++;
@@ -187,39 +182,29 @@ public class Client {
 			}
 
 			while((amount != -1) && (input.ready() == true)){
+//				System.out.println("ON ECRIT EDT MDR LOL LOL");
 				amount = input.read();
 				outFile.write(amount);
 			}
+//			System.out.println("ON A FINI D'ECRIRE EDT MDR LOL LOL");
 			amount = 888;
+//			System.out.println("ON VA ECRIRE SIGNATURE :" + input.ready());
 			while(!input.ready()){
 				amount ++;
 				if (amount>10000){
 					amount = 1;
 				}
 			}
-
-			ReaderInputStream inFileStream = new ReaderInputStream(input,"UTF-8");
-			
-			outFile2.close();
-			outFile2 = new FileOutputStream(destination+"signature.txt");
-			byte[] buf = new byte[1024];
-			int c;
-			while ((c = inFileStream.read(buf, 0, buf.length)) > 0) {
-				outFile2.write(buf, 0, c);
+			System.out.println("ON ECRIT SIGNATURE MDR LOL LOL");
+			while((amount != -1) && (input.ready() == true)){
+				amount = input.read();
+				outFile2.write(amount);
 			}
-			outFile2.flush();
-			//			char[] cbuf = new char[128];
-			//			System.out.println("ON ECRIT SIGNATURE MDR LOL LOL");
-			//			while((amount != -1) && (input.ready() == true)){
-			//				amount = input.read(cbuf, 0, 128);
-			////				outFile2.write(amount);
-			//			}
-			//			byte[] b = new String(cbuf).getBytes();
-			//			outFile2.write(b);
+			System.out.println("ON A FINI D'ECRIRE SIGNATURE MDR LOL LOL");
 			if(publicKey == null){
 				this.setPublicKey();
 			}
-
+			
 			Path path = Paths.get(destination+"EDT.txt");
 			byte[] file = Files.readAllBytes(path);
 			Path path2 = Paths.get(destination+"signature.txt");
@@ -229,7 +214,7 @@ public class Client {
 			}else{
 				System.out.println("La signature n'est pas bonne");
 			}
-
+			
 			outFile.close();
 			outFile2.close();
 			this.close();
