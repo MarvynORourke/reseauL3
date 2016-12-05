@@ -182,25 +182,20 @@ public class Client {
 			}
 
 			while((amount != -1) && (input.ready() == true)){
-//				System.out.println("ON ECRIT EDT MDR LOL LOL");
 				amount = input.read();
 				outFile.write(amount);
 			}
-//			System.out.println("ON A FINI D'ECRIRE EDT MDR LOL LOL");
 			amount = 888;
-//			System.out.println("ON VA ECRIRE SIGNATURE :" + input.ready());
 			while(!input.ready()){
 				amount ++;
 				if (amount>10000){
 					amount = 1;
 				}
 			}
-			System.out.println("ON ECRIT SIGNATURE MDR LOL LOL");
 			while((amount != -1) && (input.ready() == true)){
 				amount = input.read();
 				outFile2.write(amount);
 			}
-			System.out.println("ON A FINI D'ECRIRE SIGNATURE MDR LOL LOL");
 			if(publicKey == null){
 				this.setPublicKey();
 			}

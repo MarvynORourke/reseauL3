@@ -39,8 +39,6 @@ public class Serveur {
     //La destination des fichiers
     private String destination;
     
-    private static final long timeout = 5000;
-    
     /**
      * * Le constructeur Serveur(). Il crée la ServerSocket sur le port 4444.
      */
@@ -270,9 +268,7 @@ public class Serveur {
             e.printStackTrace();
         }
 
-        System.out.println("VOICI LA TAILLE LORS DE LA SORTIE DU SIGNEMENT : ");
         byte[] realSig = rsa.sign();
-        System.out.println(realSig.length);
         // Save signature
         FileOutputStream outSignFile = new FileOutputStream(signFile);
         outSignFile.write(realSig);
