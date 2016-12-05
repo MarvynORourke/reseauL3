@@ -16,14 +16,6 @@ import java.util.Arrays;
 import java.security.*;
 
 
-/*
- //Un exemple de javadoc
- /** Explication de la méthode/constructeur/watheveryouwantlol
- * @param  pour donner l'information sur UN SEUL paramétre
- * @return ce que la fonction renvoie (si aucun renvoie, enlever return)
- * @throws UN SEUL type d'exception renvoyer (é faire pour chaque type)
- */
-
 /**
  * * La classe Serveur est la classe qui permet de créer le serveur, de s'y
  * connecter, etc
@@ -47,6 +39,8 @@ public class Serveur {
     //La destination des fichiers
     private String destination;
     
+    private static final long timeout = 5000;
+    
     /**
      * * Le constructeur Serveur(). Il crée la ServerSocket sur le port 4444.
      */
@@ -54,7 +48,7 @@ public class Serveur {
         this.numEtudiants = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9));
         try {
             //On initialise le ServerSocket, sur le port 4444 afin d'écouter toutes les requétes émises sur ce port
-            //On utilise ce numéro de port car entre
+            //On utilise ce numéro de port car il y a peu de chance qu'il soit utilisé.
             serverSocket = new ServerSocket(4444);
         } catch (IOException ex) {
             System.out.println("Could not listen on port 4444");
@@ -66,7 +60,7 @@ public class Serveur {
      * La méthode connect() permet é un client de se connecter au serveur. Elle
      * oblige aussi le client é s'authentifier via un numéro.
      *
-     * @param s, la chaà®ne de caractà¨re qui indique la version du serveur à 
+     * @param s, la chaà®ne de caractère qui indique la version du serveur à 
      * utiliser
      * @return boolean, indiquant si la connection s'est bien déroulée
      * @throws java.io.IOException
@@ -129,7 +123,7 @@ public class Serveur {
      */
     public void authentification() {
         try {
-            //On récupà¨re ce que nous envoie le client
+            //On récupère ce que nous envoie le client
             InputStream inputClient = clientSocket.getInputStream();
             int numEtud = inputClient.read();
             //On vérifie que le numéro envoyé par le client existe (authentification)
@@ -153,17 +147,18 @@ public class Serveur {
      */
     public void authentificationV2() {
         try {
-            //On récupà¨re ce que nous envoie le client
+        	generateKeys();
+        	importPublicKey("C:\\Users\\Romain\\git\\reseauL3\\RessourcesClient\\publicKey.txt");
+            //On récupère ce que nous envoie le client
             InputStream inputClient = clientSocket.getInputStream();
             int numEtud = inputClient.read();
-            //On vérifie que le numéro envoyé par le client existe (authentification)
             if (numEtudiants.contains(numEtud)) {
                 out = new PrintWriter(clientSocket.getOutputStream(), true);
                 authentifie = true;
                 send(clientSocket.getOutputStream(), new FileInputStream(destination + "testEntree.txt"));
-                out.close();
-                out = new PrintWriter(clientSocket.getOutputStream(), true);
+                out.flush();
                 signFile(destination + "testEntree.txt",destination + "signFile.txt");
+                out.flush();
             } else {
                 System.out.println("Le client n'est pas authentifié !");
                 out.println(" Vous n'êtes pas authentifié !");
@@ -172,25 +167,7 @@ public class Serveur {
             System.out.println(e.getMessage());
         }
     }
-
-    /*/** La méthode getEDTServeur() permet d'envoyer au client l'emploi du temps via la méthode send()
-     *  si le client est authentifié
-     * @throws IOException quelque chose a échouée
-     *
-     public void getEDTServeur() throws IOException{
-     try{
-     //Si le client est authentifié, on envoie l'emploi du temps via la fonction send()
-     if(authentifie == true){
-     send(clientSocket.getOutputStream(),new FileInputStream("C:\\Users\\Romain\\git\\reseauL3\\Ressources\\testEntrée.txt"));
-     }else{//Sinon on prévient le client qu'il n'est pas authentifié
-     out.flush();
-     out.print("Vous n'étes pas authentifié");
-     }
-     }catch(IOException e){
-     System.out.println("Quelque chose a mal tourné lol");     
-     System.exit(-1);
-     }
-     }*/
+    
     /**
      * La méthode send() permet d'envoyer une donnée d'un InputStream vers un
      * OutputStream
@@ -202,7 +179,7 @@ public class Serveur {
     private void send(OutputStream outClient, FileInputStream inFile) throws IOException {
         try {
             try (InputStream inFileStream = inFile) {
-                byte[] buf = new byte[8192];
+                byte[] buf = new byte[1024];
                 int c;
                 
                 while ((c = inFileStream.read(buf, 0, buf.length)) > 0) {
@@ -279,29 +256,30 @@ public class Serveur {
         importPublicKey(destination + "publicKey.txt");
         PrivateKey privateKey = keyPair.getPrivate();
 
-        Signature rsa = Signature.getInstance("SHA1withRSA");
+        Signature rsa = Signature.getInstance("SHA1withRSA","SunRsaSign");
         rsa.initSign(privateKey);
         FileInputStream inSignFile = new FileInputStream(signFile);
 
         try (BufferedInputStream input = new BufferedInputStream(inSignFile)) {
             buffer = new byte[1024];
-            int len;
-            while ((len = input.read(buffer)) >= 0) {
-                rsa.update(buffer, 0, len);
+            int c;
+            while ((c = input.read(buffer)) > 0) {
+                rsa.update(buffer, 0, c);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        System.out.println("VOICI LA TAILLE LORS DE LA SORTIE DU SIGNEMENT : ");
         byte[] realSig = rsa.sign();
-
+        System.out.println(realSig.length);
         // Save signature
         FileOutputStream outSignFile = new FileOutputStream(signFile);
         outSignFile.write(realSig);
         outSignFile.close();
-
         try {
             send(clientSocket.getOutputStream(), new FileInputStream(signFile));
+            System.out.println("On est passé par la méthode send avec pour données :" + realSig.length + "et là on A send");
         } catch (Exception e) {
             
         }

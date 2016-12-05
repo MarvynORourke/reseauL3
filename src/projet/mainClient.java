@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Scanner;
 
 public class mainClient {
 
-	public static void main(String[] args) throws UnknownHostException, IOException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException {
+	public static void main(String[] args) throws UnknownHostException, IOException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException, NoSuchProviderException {
 		Scanner sc = new Scanner(System.in);
 		
 		System.out.println("Entrez l'ip du server");
@@ -22,8 +23,6 @@ public class mainClient {
 		
 		System.out.println("Veuillez entrer le path où se touvent les fichiers (publicKey.txt,...)");
 		String destination = sc.nextLine();
-		
-		System.out.println(destination);
 		
 		System.out.println("Veuillez entrez la version du server (1/2)");
 		int version = sc.nextInt();
