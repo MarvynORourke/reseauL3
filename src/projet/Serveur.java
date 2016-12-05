@@ -203,12 +203,5 @@ public class Serveur {
 
 		PublicKey publicKey = keyPair.getPublic();
 		String publicKeyString =  publicKey.toString();
-		outfile.
-		try{
-			outFile.write(publicKeyString);					
-			}
-		}catch(IOException e){
-			e.printStackTrace();
-		}
 	}
 }

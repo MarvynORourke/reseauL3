@@ -9,6 +9,20 @@ import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+
+import javax.crypto.Cipher;
 
 public class Client {
 
@@ -25,8 +39,9 @@ public class Client {
 	//Le numéro étudiant du Client
 	private int numeroEtud;
 	//Fichier de destination
-	private final String destination = "C:\\Users\\Romain\\git\\reseauL3\\Ressources\\";
-	
+	private final String destination = "C:\\Users\\Marv\\Desktop\\";
+	//Clé privée permettant le decryptage 
+	private PublicKey publicKey;
 	/**
 	 * Construteur de la classe client qui initialise l'ip,le port et le numéro etudiant
 	 * @param ip
@@ -82,12 +97,46 @@ public class Client {
 			return false;
 		}
 	}
-
 	/**
-	 * Permet d'enregister l'emploi du temps dans un fichier/
+	 * Permet le Client de récupérer la clé public
+	 * @param path
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeySpecException
 	 * @throws IOException
 	 */
-	public void getEDT() throws IOException{
+	public void setPublicKey() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException{
+		Path path = Paths.get("C:\\Users\\Marv\\Desktop\\publicKey.txt");
+		byte[] data = Files.readAllBytes(path);
+		KeyFactory f = KeyFactory.getInstance("RSA");
+		PublicKey publicKey = f.generatePublic(new X509EncodedKeySpec(data));
+		this.publicKey = publicKey;
+	}
+	/**
+	 * Permet de vérifier si une fonction est bonne.
+	 * @param data
+	 * @param s
+	 * @return
+	 * @throws InvalidKeyException
+	 * @throws NoSuchAlgorithmException
+	 * @throws SignatureException
+	 */
+	public boolean verifySign(byte[]data, byte[] s) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException{
+		Signature rsa = Signature.getInstance("SHA1withRSA");
+		rsa.initVerify(publicKey);
+		rsa.update(data);
+		return rsa.verify(s);
+		
+		
+	}
+
+	/**
+	 * Permet d'enregister l'emploi du temps dans un fichier et de dire si la signature est vérifié. 
+	 * @throws IOException
+	 * @throws SignatureException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws InvalidKeyException 
+	 */
+	public void getEDTV1() throws IOException, InvalidKeyException, NoSuchAlgorithmException, SignatureException{
 		try{
 			File fichier  = new File(destination+"EDT.txt");
 			fichier.createNewFile();
@@ -104,14 +153,72 @@ public class Client {
 			
 			while((amount != -1) && (input.ready() == true)){
 				System.out.println("On écris dans le fichier");
-				System.out.println(amount);
 				amount = input.read();
 				outFile.write(amount);
-				System.out.println(amount);
 			}
+
+			
+			
 			System.out.println("Fin coté client !");
+			outFile.close();
+			this.close();
+
+		}catch(IOException e){
+			e.printStackTrace();
+			System.out.println("now to investigate this IO issue");
+			System.exit(-1);
+		}
+	}
+	public void getEDTV2() throws IOException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, InvalidKeySpecException{
+		try{
+			File fichier  = new File(destination+"EDT.txt");
+			fichier.createNewFile();
+			FileOutputStream outFile = new FileOutputStream(destination+"EDT.txt");
+			FileOutputStream outFile2 = new FileOutputStream(destination+"signature.txt");
+			
+			int amount = 888;
+			while(!input.ready()){
+				amount ++;
+				if (amount>10000){
+					amount = 1;
+				}
+			}
+			System.out.println("Coté client !");			
+			
+			while((amount != -1) && (input.ready() == true)){
+				System.out.println("On écris dans le fichier");
+				amount = input.read();
+				outFile.write(amount);
+			}
+			amount = 888;
+			while(!input.ready()){
+				amount ++;
+				if (amount>10000){
+					amount = 1;
+				}
+			}
+			while((amount != -1) && (input.ready() == true)){
+				System.out.println("On récupère la signature");
+				amount = input.read();
+				outFile2.write(amount);
+			}
+			if(publicKey == null){
+				this.setPublicKey();
+			}
+			
+			System.out.println("Fin coté client !");
+			Path path = Paths.get(destination+"EDT.txt");
+			byte[] file = Files.readAllBytes(path);
+			Path path2 = Paths.get(destination+"signature.txt");
+			byte[] file2 = Files.readAllBytes(path2);
+			if(verifySign(file, file2)){
+				System.out.println("La signature a été vérifié");
+			}else{
+				System.out.println("La signature n'est pas bonne");
+			}
 			
 			outFile.close();
+			outFile2.close();
 			this.close();
 
 		}catch(IOException e){
